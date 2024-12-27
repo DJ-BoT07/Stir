@@ -2,10 +2,14 @@ services:
   - type: web
     name: twitter-trends-scraper
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: chmod +x build.sh && ./build.sh
     startCommand: gunicorn wsgi:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.8.0
+      - key: CHROME_PATH
+        value: /opt/render/project/chrome/usr/bin/google-chrome
+      - key: CHROMEDRIVER_PATH
+        value: /opt/render/project/chrome/chromedriver
     buildpacks:
       - name: chrome 

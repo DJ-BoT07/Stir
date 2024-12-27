@@ -4,18 +4,27 @@ set -o errexit
 # Install Python dependencies
 pip install -r requirements.txt
 
-# Download and setup Chrome and ChromeDriver
+# Create chrome directory
 mkdir -p $HOME/chrome
 cd $HOME/chrome
+
+# Download Chrome
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 dpkg -x google-chrome-stable_current_amd64.deb $HOME/chrome
-export CHROME_PATH=$HOME/chrome/usr/bin/google-chrome
 
-# Download compatible ChromeDriver
-CHROME_VERSION=$(google-chrome --version | awk '{print $3}' | awk -F'.' '{print $1}')
-wget -q "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION}" -O chrome_version
-CHROMEDRIVER_VERSION=$(cat chrome_version)
+# Set Chrome path
+CHROME_PATH=$HOME/chrome/usr/bin/google-chrome
+
+# Use a specific ChromeDriver version (you can update this version as needed)
+CHROMEDRIVER_VERSION="114.0.5735.90"  # Use a stable version
 wget -q "https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
 unzip chromedriver_linux64.zip
 chmod +x chromedriver
-export CHROMEDRIVER_PATH=$HOME/chrome/chromedriver 
+
+# Export paths
+export CHROME_PATH=$HOME/chrome/usr/bin/google-chrome
+export CHROMEDRIVER_PATH=$HOME/chrome/chromedriver
+
+# Print versions for debugging
+echo "Chrome path: $CHROME_PATH"
+echo "ChromeDriver path: $CHROMEDRIVER_PATH" 
