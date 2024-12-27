@@ -31,7 +31,6 @@ print("Current working directory:", os.getcwd())
 def fetch_trending_topics():
     driver = None
     print("Starting trend fetch process...")
-    print("Using credentials - Username:", os.getenv('TWITTER_USERNAME'))
     
     # ScraperAPI configuration
     scraper_api_key = "25c5cf9837ab5214a4f8ad9c06fdfb58"
@@ -40,17 +39,23 @@ def fetch_trending_topics():
     proxy_username = "scraperapi"
     proxy_password = scraper_api_key
     
-    # Configure proxy URL
-    proxy_url = f"http://{proxy_username}:{proxy_password}@{proxy_host}:{proxy_port}"
-    print("Configuring ScraperAPI proxy...")
-    
     chrome_options = Options()
     chrome_options.add_argument('--window-size=1920,1080')
     chrome_options.add_argument('--remote-debugging-port=9222')
     chrome_options.add_argument('--user-data-dir=./chrome-profile')
     chrome_options.add_argument(f'--proxy-server={proxy_host}:{proxy_port}')
     chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36')
-    chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
+    
+    # Add headless mode for Linux environment
+    if os.name != 'nt':  # If not Windows
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.binary_location = os.getenv('GOOGLE_CHROME_BIN', '/usr/bin/google-chrome')
+    else:
+        chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
+    
     chrome_options.add_argument('--ignore-certificate-errors')
     chrome_options.add_argument('--allow-insecure-localhost')
     
@@ -115,10 +120,11 @@ def fetch_trending_topics():
     chrome_options.add_extension(plugin_file)
 
     try:
-        # Start Chrome using run_chrome.bat
-        print("Starting Chrome with remote debugging...")
-        subprocess.Popen(['run_chrome.bat'], shell=True)
-        time.sleep(5)  # Wait for Chrome to start
+        # Start Chrome differently based on OS
+        if os.name == 'nt':  # Windows
+            print("Starting Chrome with remote debugging...")
+            subprocess.Popen(['run_chrome.bat'], shell=True)
+            time.sleep(5)
         
         # Test proxy connection and get IP
         try:
@@ -157,95 +163,32 @@ def fetch_trending_topics():
             print(f"Failed to get debugger URL: {str(e)}")
             raise
 
-        chromedriver_path = os.path.join(os.getcwd(), "chromedriver-win64", "chromedriver.exe")
+        # Set up ChromeDriver based on OS
+        if os.name == 'nt':  # Windows
+            chromedriver_path = os.path.join(os.getcwd(), "chromedriver-win64", "chromedriver.exe")
+        else:  # Linux
+            chromedriver_path = os.getenv('CHROMEDRIVER_PATH', '/usr/local/bin/chromedriver')
+        
         print(f"Using ChromeDriver from: {chromedriver_path}")
         service = Service(chromedriver_path)
         driver = webdriver.Chrome(service=service, options=chrome_options)
         wait = WebDriverWait(driver, 20)
         print("Chrome driver initialized successfully")
         
-        # First go to login page
-        # print("Accessing X.com login page...")
-        # driver.get("https://x.com/i/flow/login")
-        # time.sleep(3)
+        # Navigate directly instead of opening new tab on Linux
+        if os.name != 'nt':
+            print("Navigating to X.com...")
+            driver.get("https://x.com/home")
+        else:
+            print("Opening X.com in a new tab...")
+            current_handles = driver.window_handles
+            driver.execute_script("window.open('https://x.com/home', '_blank');")
+            time.sleep(1)
+            new_handles = driver.window_handles
+            new_tab = [handle for handle in new_handles if handle not in current_handles][0]
+            driver.switch_to.window(new_tab)
         
-        # # Click sign in button if present
-        # try:
-        #     sign_in_button = wait.until(EC.element_to_be_clickable((
-        #         By.CSS_SELECTOR, "#react-root > div > div > div.css-175oi2r.r-1f2l425.r-13qz1uu.r-417010 > main > div > div > div.css-175oi2r.r-tv6buo.r-791edh.r-1euycsn > div.css-175oi2r.r-1777fci.r-nsbfu8.r-1qmwkkh > div > div.css-175oi2r > div.css-175oi2r.r-2o02ov > a > div > span > span"
-        #     )))
-        #     print("Found sign in button")
-        #     sign_in_button.click()
-        #     time.sleep(2)
-        # except Exception as e:
-        #     print(f"Sign in button not found: {str(e)}")
-        #     print("Proceeding with direct login")
-        
-        # print("Looking for username input...")
-        # username_input = wait.until(EC.element_to_be_clickable((
-        #     By.CSS_SELECTOR, "#layers > div:nth-child(2) > div > div > div > div > div > div.css-175oi2r.r-1ny4l3l.r-18u37iz.r-1pi2tsx.r-1777fci.r-1xcajam.r-ipm5af.r-g6jmlv.r-1awozwy > div.css-175oi2r.r-1wbh5a2.r-htvplk.r-1udh08x.r-1867qdf.r-kwpbio.r-rsyp9y.r-1pjcn9w.r-1279nm1 > div > div > div.css-175oi2r.r-1ny4l3l.r-6koalj.r-16y2uox.r-kemksi.r-1wbh5a2 > div.css-175oi2r.r-16y2uox.r-1wbh5a2.r-f8sm7e.r-13qz1uu.r-1ye8kvj > div > div > div > div.css-175oi2r.r-1mmae3n.r-1e084wi.r-13qz1uu > label > div > div.css-175oi2r.r-18u37iz.r-16y2uox.r-1wbh5a2.r-1wzrnnt.r-1udh08x.r-xd6kpl.r-is05cd.r-ttdzmv > div > input"
-        # )))
-        # print("Found username input")
-        # username_input.clear()
-        # username_input.send_keys(os.getenv('TWITTER_USERNAME'))
-        # print("Entered username")
-        
-        # # Click the Next button after entering username
-        # next_button = wait.until(EC.element_to_be_clickable((
-        #     By.CSS_SELECTOR, "#layers > div:nth-child(2) > div > div > div > div > div > div.css-175oi2r.r-1ny4l3l.r-18u37iz.r-1pi2tsx.r-1777fci.r-1xcajam.r-ipm5af.r-g6jmlv.r-1awozwy > div.css-175oi2r.r-1wbh5a2.r-htvplk.r-1udh08x.r-1867qdf.r-kwpbio.r-rsyp9y.r-1pjcn9w.r-1279nm1 > div > div > div.css-175oi2r.r-1ny4l3l.r-6koalj.r-16y2uox.r-kemksi.r-1wbh5a2 > div.css-175oi2r.r-16y2uox.r-1wbh5a2.r-f8sm7e.r-13qz1uu.r-1ye8kvj > div > div > div > button:nth-child(6) > div"
-        # )))
-        # next_button.click()
-        # print("Clicked Next button")
-        # time.sleep(2)
-        
-        # print("Looking for password input...")
-        # password_input = wait.until(EC.element_to_be_clickable((
-        #     By.CSS_SELECTOR, "#layers > div:nth-child(2) > div > div > div > div > div > div.css-175oi2r.r-1ny4l3l.r-18u37iz.r-1pi2tsx.r-1777fci.r-1xcajam.r-ipm5af.r-g6jmlv.r-1awozwy > div.css-175oi2r.r-1wbh5a2.r-htvplk.r-1udh08x.r-1867qdf.r-kwpbio.r-rsyp9y.r-1pjcn9w.r-1279nm1 > div > div > div.css-175oi2r.r-1ny4l3l.r-6koalj.r-16y2uox.r-kemksi.r-1wbh5a2 > div.css-175oi2r.r-16y2uox.r-1wbh5a2.r-f8sm7e.r-13qz1uu.r-1ye8kvj > div.css-175oi2r.r-16y2uox.r-1wbh5a2.r-1dqxon3 > div > div > div.css-175oi2r.r-1e084wi.r-13qz1uu > div > label > div > div.css-175oi2r.r-18u37iz.r-16y2uox.r-1wbh5a2.r-1wzrnnt.r-1udh08x.r-xd6kpl.r-is05cd.r-ttdzmv > div.css-146c3p1.r-bcqeeo.r-1ttztb7.r-qvutc0.r-37j5jr.r-135wba7.r-16dba41.r-1awozwy.r-6koalj.r-1inkyih.r-13qz1uu > input"
-        # )))
-        # print("Found password input")
-        # password_input.clear()
-        # password_input.send_keys(os.getenv('TWITTER_PASSWORD'))
-        # print("Entered password")
-        
-        # # Click the Login button after entering password
-        # login_button = wait.until(EC.element_to_be_clickable((
-        #     By.CSS_SELECTOR, "#layers > div:nth-child(2) > div > div > div > div > div > div.css-175oi2r.r-1ny4l3l.r-18u37iz.r-1pi2tsx.r-1777fci.r-1xcajam.r-ipm5af.r-g6jmlv.r-1awozwy > div.css-175oi2r.r-1wbh5a2.r-htvplk.r-1udh08x.r-1867qdf.r-kwpbio.r-rsyp9y.r-1pjcn9w.r-1279nm1 > div > div > div.css-175oi2r.r-1ny4l3l.r-6koalj.r-16y2uox.r-kemksi.r-1wbh5a2 > div.css-175oi2r.r-16y2uox.r-1wbh5a2.r-f8sm7e.r-13qz1uu.r-1ye8kvj > div.css-175oi2r.r-1f0wa7y > div > div.css-175oi2r > div > div > button > div"
-        # )))
-        # login_button.click()
-        # print("Submitted login form")
-        # time.sleep(5)
-        
-        # # Check for various error conditions
-        # try:
-        #     error_elements = driver.find_elements(By.CSS_SELECTOR, "[data-testid='error']")
-        #     if error_elements:
-        #         error_text = error_elements[0].text
-        #         print(f"Login error detected: {error_text}")
-        #         return {"error": f"Login failed: {error_text}"}
-        # except Exception as e:
-        #     print(f"Error checking for login errors: {str(e)}")
-        
-        # # Verify we're logged in before proceeding
-        # if "i/flow/login" in driver.current_url:
-        #     print("Still on login page - authentication failed")
-        #     return {"error": "Login failed - please check credentials"}
-        
-        # Instead of starting a new Chrome instance, just open a new tab
-        print("Opening X.com in a new tab...")
-        # Switch to the new tab after opening it
-        current_handles = driver.window_handles
-        driver.execute_script("window.open('https://x.com/home', '_blank');")
-        time.sleep(1)
-        
-        # Switch to the newly opened tab
-        new_handles = driver.window_handles
-        new_tab = [handle for handle in new_handles if handle not in current_handles][0]
-        driver.switch_to.window(new_tab)
-        
-        # Remove or comment out the Chrome startup code
-        # print("Starting Chrome with remote debugging...")
-        # subprocess.Popen(['run_chrome.bat'], shell=True)
-        # time.sleep(5)  # Wait for Chrome to start
+        time.sleep(3)
         
         # Wait for trends to load with new XPath
         print("Waiting for trends to load...")
