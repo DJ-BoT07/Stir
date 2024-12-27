@@ -230,13 +230,22 @@ def fetch_trending_topics():
         #     print("Still on login page - authentication failed")
         #     return {"error": "Login failed - please check credentials"}
         
-        print("Accessing X.com home page...")
-        driver.get("https://x.com/home")
-        time.sleep(3)
+        # Instead of starting a new Chrome instance, just open a new tab
+        print("Opening X.com in a new tab...")
+        # Switch to the new tab after opening it
+        current_handles = driver.window_handles
+        driver.execute_script("window.open('https://x.com/home', '_blank');")
+        time.sleep(1)
         
-        # Scroll a bit to trigger content loading
-        # driver.execute_script("window.scrollBy(0, 300);")
-        # time.sleep(2)
+        # Switch to the newly opened tab
+        new_handles = driver.window_handles
+        new_tab = [handle for handle in new_handles if handle not in current_handles][0]
+        driver.switch_to.window(new_tab)
+        
+        # Remove or comment out the Chrome startup code
+        # print("Starting Chrome with remote debugging...")
+        # subprocess.Popen(['run_chrome.bat'], shell=True)
+        # time.sleep(5)  # Wait for Chrome to start
         
         # Wait for trends to load with new XPath
         print("Waiting for trends to load...")
@@ -248,18 +257,22 @@ def fetch_trending_topics():
 
         # Get all trend elements within the container
         trends = wait.until(EC.presence_of_all_elements_located((
-            By.CSS_SELECTOR, "div.css-146c3p1.r-bcqeeo.r-1ttztb7.r-qvutc0.r-37j5jr.r-a023e6.r-rjixqe.r-b88u0q.r-1bymd8e span.r-18u37iz span"
-        )))[:5]
-        print("Found trends section")
+            By.CSS_SELECTOR, "div.css-146c3p1.r-bcqeeo.r-1ttztb7.r-qvutc0.r-37j5jr.r-a023e6.r-rjixqe.r-b88u0q.r-1bymd8e"
+        )))
+        print(f"Found {len(trends)} potential trends")
 
         # Clean up trend names
         trend_names = []
         for trend in trends:
-            name = trend.text.strip()
-            if name and len(name) > 1 and name.startswith('#'):
-                trend_names.append(name)
+            try:
+                name = trend.text.strip()
+                if name and not name.startswith("Show more"):  # Exclude "Show more" button
+                    trend_names.append(name)
                 if len(trend_names) >= 5:
                     break
+            except Exception as e:
+                print(f"Error processing trend: {str(e)}")
+                continue
 
         print(f"Found {len(trend_names)} trends: {trend_names}")
         if len(trend_names) == 0:
