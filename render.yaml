@@ -6,4 +6,6 @@ services:
     startCommand: gunicorn wsgi:app
     envVars:
       - key: PYTHON_VERSION
-        value: 3.8.0 
+        value: 3.8.0
+    buildpacks:
+      - name: chrome 
