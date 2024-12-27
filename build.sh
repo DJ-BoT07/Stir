@@ -13,7 +13,7 @@ wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 dpkg -x google-chrome-stable_current_amd64.deb $HOME/chrome
 
 # Set Chrome path
-CHROME_PATH=$HOME/chrome/usr/bin/google-chrome
+
 
 # Use a specific ChromeDriver version (you can update this version as needed)
 CHROMEDRIVER_VERSION="114.0.5735.90"  # Use a stable version

@@ -45,11 +45,6 @@ def fetch_trending_topics():
     print("Configuring ScraperAPI proxy...")
     
     chrome_options = Options()
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--disable-gpu')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.binary_location = os.getenv('CHROME_PATH', '/usr/bin/google-chrome')
     chrome_options.add_argument('--window-size=1920,1080')
     chrome_options.add_argument('--remote-debugging-port=9222')
     chrome_options.add_argument('--user-data-dir=./chrome-profile')
@@ -165,10 +160,7 @@ def fetch_trending_topics():
         chromedriver_path = os.path.join(os.getcwd(), "chromedriver-win64", "chromedriver.exe")
         print(f"Using ChromeDriver from: {chromedriver_path}")
         service = Service(chromedriver_path)
-        driver = webdriver.Chrome(
-            executable_path=os.getenv('CHROMEDRIVER_PATH', '/usr/local/bin/chromedriver'),
-            options=chrome_options
-        )
+        driver = webdriver.Chrome(service=service, options=chrome_options)
         wait = WebDriverWait(driver, 20)
         print("Chrome driver initialized successfully")
         
