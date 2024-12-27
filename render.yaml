@@ -1,19 +1,12 @@
 services:
   - type: web
     name: twitter-trends
-    env: python
-    buildCommand: chmod +x build.sh && ./build.sh
-    startCommand: gunicorn app:app
+    env: docker
+    dockerfilePath: Dockerfile
     envVars:
       - key: PYTHON_VERSION
         value: 3.8.0
       - key: GOOGLE_CHROME_BIN
         value: /usr/bin/google-chrome
       - key: CHROMEDRIVER_PATH
-        value: /usr/local/bin/chromedriver
-    packages:
-      - wget
-      - unzip
-      - xvfb
-      - libxi6
-      - libgconf-2-4 
+        value: /usr/local/bin/chromedriver 
