@@ -36,6 +36,7 @@ COPY . .
 # Set environment variables
 ENV GOOGLE_CHROME_BIN=/usr/bin/google-chrome
 ENV CHROMEDRIVER_PATH=/usr/local/bin/chromedriver
+ENV PORT=8000
 
 # Start the application
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:$PORT"] 
+CMD gunicorn app:app --bind 0.0.0.0:${PORT} 
