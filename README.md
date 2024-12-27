@@ -1,3 +1,12 @@
+Output:
+![alt text](image.png)
+--> Console Output
+
+![alt text](image-1.png)
+--> Website Output 
+
+<video controls src="Twitter Trending Scraper - Brave 2024-12-27 18-58-47.mp4" title="Title"></video>
+
 # Twitter Trends Tracker
 
 A web application that scrapes Twitter trending topics using Selenium and ProxyMesh, stores the data in MongoDB, and displays it on a beautiful web interface built with Tailwind CSS.
@@ -22,10 +31,6 @@ A web application that scrapes Twitter trending topics using Selenium and ProxyM
    - Copy `.env.example` to `.env`
    - Fill in your credentials:
      - `MONGO_URI`: MongoDB connection string
-     - `PROXYMESH_USERNAME`: Your ProxyMesh username
-     - `PROXYMESH_PASSWORD`: Your ProxyMesh password
-     - `TWITTER_USERNAME`: Your Twitter username
-     - `TWITTER_PASSWORD`: Your Twitter password
 
 4. Make sure MongoDB is running locally
 

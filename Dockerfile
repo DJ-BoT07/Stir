@@ -37,6 +37,15 @@ COPY . .
 ENV GOOGLE_CHROME_BIN=/usr/bin/google-chrome
 ENV CHROMEDRIVER_PATH=/usr/local/bin/chromedriver
 ENV PORT=8000
+ENV CHROME_BIN=/usr/bin/google-chrome
+ENV CHROME_PATH=/usr/bin/google-chrome
+ENV DISPLAY=:99
+ENV CHROME_OPTIONS="\
+--headless,\
+--disable-gpu,\
+--no-sandbox,\
+--disable-dev-shm-usage,\
+--disable-software-rasterizer"
 
 # Start the application
 CMD gunicorn app:app --bind 0.0.0.0:${PORT} 

@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.env
+chrome-profile/
+error.png
+error_page.html
+proxy_auth_plugin.zip 
