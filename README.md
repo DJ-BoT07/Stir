@@ -5,7 +5,7 @@ Output:
 ![alt text](image-1.png)
 --> Website Output 
 
-<video controls src="Twitter Trending Scraper - Brave 2024-12-27 18-58-47.mp4" title="Title"></video>
+[Demo Video](Twitter%20Trending%20Scraper%20-%20Brave%202024-12-27%2018-58-47.mp4)
 
 # Twitter Trends Tracker
 
@@ -62,4 +62,4 @@ A web application that scrapes Twitter trending topics using Selenium and ProxyM
 - The application uses headless Chrome for scraping
 - Each request uses a different IP address through ProxyMesh
 - Trends are stored with timestamps and IP addresses used
-- The UI updates automatically after each scrape 
+- The UI updates automatically after each scrape
